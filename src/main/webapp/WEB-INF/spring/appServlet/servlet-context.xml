@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- DispatcherServlet Context: defines this servlet's request-processing 
+		infrastructure -->
+
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<!-- ESTO HABILITA LOS ANNOTATIONS DE SPRING -->
+	<annotation-driven />
+
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving 
+		up static resources in the ${webappRoot}/resources directory -->
+	<!-- ESTE LE DICE A SPRING DONDE BUSCAR ARCHIVOS ESTATICOS (IMAGNES, CSS, 
+		JAVASCRIPT) -->
+	<!-- CUANDO ALGUIEN PONE localhost:PUERTO/CONTEXT-ROOT/resources/mi-imagen.jpg 
+		SE METE A LA CARPETA /webapp/resources/ Y BUSCA mi-imagen.jpg -->
+	<resources mapping="/resources/**" location="/resources/" />
+
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources 
+		in the /WEB-INF/views directory -->
+	<!-- ESTA ETIQUETA SIRVE PARA REGISTRAR COMPONENTES EN EL CONTEXTO SPRING 
+		@Component -->
+	<beans:bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+
+	<!-- ESTE LE DICE A SPRING DONDE BUSCAR CLASES CON ANNOTATIONS -->
+	<context:component-scan base-package="org.spring.upiita.controladores" />
+
+	<!-- CONFIGURACION DE INTERNACIONALIZACION BASICA === -->
+	<beans:bean id="messageSource"
+		class="org.springframework.context.support.ResourceBundleMessageSource">
+		<!-- BASE NAME ES EL NOMBRE DE NUESTROS ARCHIVOS ARCHIVOS DE INTERNACIONALIZACION 
+			SIN LA LOCALIDAD mensajes_es.properties mensajes_en.properties -->
+		<beans:property name="basename" value="mensajes" />
+	</beans:bean>
+
+	<!-- CONFIGURACION DE INTERNACIONALIZACION opcional === -->
+	<beans:bean id="localeResolver"
+		class="org.springframework.web.servlet.i18n.SessionLocaleResolver" />
+
+	<beans:bean id="localeChangeInterceptor"
+		class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+		<beans:property name="paramName" value="lenguaje" />
+	</beans:bean>
+
+	<interceptors>
+		<beans:ref bean="localeChangeInterceptor" />
+	</interceptors>
+
+
+
+</beans:beans>

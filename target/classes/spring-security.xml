@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+	<security:http use-expressions="true">
+
+		<!-- al dar de alta una url no se pone el context root -->
+		<!-- LOS ROLES EN SPRING SECURITY SON DE LA FORMA: ROLE_PALABRA, por ejemplo 
+			ROLE_ADMINISTRADOR, ROLE_USUARIO_ESPECIAL etc. Si necesistan cambiar el prefijo 
+			ROLE_ desafortunamente tienen que cambiar el componente RoleValidator -->
+		<security:intercept-url pattern="/blog/*/editar"
+			access="hasAnyRole('ROLE_ADMIN','ROLE_EDITOR')" />
+
+		<!-- EJERCICIO USEN EL ROL ADMIN PARA TODOS PROTEGER LAS RUTAS: /usuario/23/editar 
+			/usuario/guardar /blog/guardar -->
+
+		<security:intercept-url pattern="/usuario/*/editar"
+			access="hasAnyRole('ROLE_ADMIN')" />
+		<security:intercept-url pattern="/usuario/guardar"
+			access="hasAnyRole('ROLE_ADMIN')" />
+		<security:intercept-url pattern="/blog/guardar"
+			access="hasAnyRole('ROLE_ADMIN','ROLE_EDITOR')" />
+
+		<!-- login-page: Cuando alguien entra a una ruta protegidda y no se ha 
+			loggeado, se le va redirir automaticamente a la ruta /login (ES UNA RUTA 
+			DE SPRING MVC) login-processing-url = es una ruta que usamos para mapear 
+			el controlador de spring security que valida al usuario -->
+
+		<security:form-login login-page="/login"
+			authentication-failure-url="/login?valido=false"
+			login-processing-url="/autentificar" username-parameter="email"
+			password-parameter="password" default-target-url="/blog/1" />
+
+		<!-- logout-url = la ruta a invocar para destruir la sesion logout-success-url 
+			= es la ruta a la que se va a redirigir el usuario DESPUES de DESTRUIR LA 
+			SESION -->
+		<security:logout logout-url="/logout"
+			logout-success-url="/login" />
+
+		<security:access-denied-handler
+			error-page="/error-403" />
+
+	</security:http>
+
+	<!-- el manejador de autenticacion define que usuarios son validos en el 
+		sistema -->
+	<security:authentication-manager>
+		<security:authentication-provider>
+			<!-- user-service = provedor en memoria(xml) -->
+			<!-- <security:user-service> <security:user name="juan@email.com" password="1234" 
+				authorities="ROLE_ADMIN" /> <security:user name="pepe@email.com" password="1234" 
+				authorities="ROLE_EDITOR" /> </security:user-service> -->
+
+			<security:jdbc-user-service
+				data-source-ref="dataSource"
+				users-by-username-query="SELECT email,password,activo FROM usuarios WHERE email=?"
+				authorities-by-username-query="SELECT email, rol FROM usuarios WHERE email=?" />
+
+
+		</security:authentication-provider>
+	</security:authentication-manager>
+
+
+</beans>

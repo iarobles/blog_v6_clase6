@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.1.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
+
+
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	
+	<context:component-scan base-package="org.spring.upiita.daos" />
+
+
+
+	<!-- DA DE ALTA UN DATASOURCE DE UNA BASE EMBEBIDA EN MEMORIA -->
+	<!-- el datasource representa la conexion a la base -->
+	<jdbc:embedded-database id="dataSource" type="HSQL">
+		<!-- con jdbc:script le indicamos los archivos con el sql que va a servir 
+			para construri esta base -->
+		<jdbc:script location="classpath:estructura-base.sql" />
+		<jdbc:script location="classpath:datos-prueba.sql" />
+	</jdbc:embedded-database>
+
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<!-- hibernate necesita el objeto de conexion a la base (datasource) -->
+		<property name="dataSource" ref="dataSource" />
+		<!-- todas las clases que mapean tablas las busca en el paquete definido 
+			por packagesToScan -->
+		<property name="packagesToScan" value="org.spring.upiita.entidades" />
+		<property name="hibernateProperties">
+			<map>
+				<!-- SI USAN UNA BASE DIFERENTE CAMBIAN 2 COSAS: - EL DIALECTO - EL DATASOURCE -->
+				<entry key="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
+				<entry key="hibernate.show_sql" value="true" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="utileriasDAO" class="org.spring.upiita.daos.utilerias.UtileriasDAO">
+		<property name="configuracion" ref="configuracionUtileria" />
+		<property name="cadena" value="cadena 2" />
+		<property name="numero" value="234" />
+		<property name="mapa">
+			<map>
+				<entry key="parametro 1" value="valor 1" />
+				<entry key="parametro 2" value="valor 2" />
+			</map>
+		</property>
+	</bean>
+	<bean id="configuracionUtileria" class="org.spring.upiita.daos.utilerias.ConfiguracionUtileria" />
+
+	<!-- LA SIGUIENTE ETIQUETA ES EQUIVALENTE A @Component -->
+	<!-- id es equivalente a @Compontent("articuloDAO") -->
+	<bean id="articuloDAO" class="org.spring.upiita.daos.ArticuloHibernateDAO">
+		<!-- esto es equivalente a usar @Autowired con @Qualifier -->
+		<property name="utileriasDAO" ref="utileriasDAO" />
+		<property name="cadena" value="hola mundo!" />
+		<property name="numero" value="42" />
+		<property name="mapa">
+			<!-- el mapa que estamos inyectando es del tipo Map<String,String> -->
+			<map>
+				<entry key="parametro1" value="valor 1" />
+				<entry key="parametro2" value="valor 2" />
+			</map>
+		</property>
+		<!-- inyectamos el session factory hibernate que es la interfaz que nos 
+			permite modificar y consultar la base -->
+		<property name="sessionFactory" ref="sessionFactory" />
+
+	</bean>
+
+
+</beans>
