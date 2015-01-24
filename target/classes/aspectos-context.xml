@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+
+	<!-- damos de alta la instancia que vamos a usar como aspecto -->
+	<bean id="loggingAspecto" class="org.spring.upiita.aspectos.LoggingAspecto" />
+	<bean id="relojAspecto" class="org.spring.upiita.aspectos.RelojAspecto" />
+
+	<aop:config>
+		<!-- configuramos al aspecto que vamos a utilizar -->
+		<!-- ref hace referencia a la clase que contiene nuestros consejos -->
+		<aop:aspect ref="loggingAspecto">
+			<!-- aop:before es para indicar que metodo va ser un consejo de tipo before(se 
+				ejecuta antes de un metodo -->
+			<aop:before method="antesDeInvocar"
+				pointcut="execution(* org.spring.upiita.daos.ArticuloDAO.buscaPorId(..))" />
+
+			<aop:after method="despuesDeInvocar"
+				pointcut="execution(* org.spring.upiita.daos.ArticuloDAO.buscaPorId(..))" />
+
+			<aop:before method="antesDeInvocar"
+				pointcut="execution(* org.spring.upiita.daos.UsuarioDAO.buscaPorId(..))" />
+
+			<aop:after method="despuesDeInvocar"
+				pointcut="execution(* org.spring.upiita.daos.UsuarioDAO.buscaPorId(..))" />
+
+			<aop:around method="alrededor"
+				pointcut="execution(* org.spring.upiita.daos.ArticuloDAO.buscaPorTitulo(..))" />
+		</aop:aspect>
+
+<!-- 
+   	    <aop:aspect ref="relojAspecto">
+			<aop:around method="tomaTiempo"
+				pointcut="execution(* org.spring.upiita.daos.ArticuloDAO.buscaPorId(..))" />
+		</aop:aspect>
+		 -->
+
+	</aop:config>
+	
+	
+	<context:component-scan base-package="org.spring.upiita.aspectos" />
+	<!-- habilitamos la configuracion con annotations para AOP -->
+	<aop:aspectj-autoproxy />
+
+</beans>
