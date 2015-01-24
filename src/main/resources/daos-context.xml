@@ -22,12 +22,12 @@
 
 	<!-- DA DE ALTA UN DATASOURCE DE UNA BASE EMBEBIDA EN MEMORIA -->
 	<!-- el datasource representa la conexion a la base -->
-	<jdbc:embedded-database id="dataSource2" type="HSQL">
-		<!-- con jdbc:script le indicamos los archivos con el sql que va a servir 
-			para construri esta base -->
+	<!-- 
+	<jdbc:embedded-database id="dataSource2" type="HSQL">		
 		<jdbc:script location="classpath:estructura-base.sql" />
 		<jdbc:script location="classpath:datos-prueba.sql" />
 	</jdbc:embedded-database>
+	 -->
 
 	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
 		destroy-method="close">
